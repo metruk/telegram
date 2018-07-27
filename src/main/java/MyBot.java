@@ -1,9 +1,6 @@
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-
-import org.telegram.telegrambots.ApiContextInitializer;
-import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -11,12 +8,15 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButto
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
+
 
 public class MyBot extends TelegramLongPollingBot{
 	
+	String filePath = "publicator_files/translationtable.csv";
 	
-
+	Service service = new Service ();
+	FileWorker fileworker = new FileWorker();
+	
 	public String getBotUsername() {
 		// TODO Auto-generated method stub
 		return "footHDBot";
@@ -31,11 +31,54 @@ public class MyBot extends TelegramLongPollingBot{
 				sendMsg(update.getMessage().getChatId().toString(), "Success");
 			}
 		}*/
-		String message = update.getMessage().getText();
-		sendMsg(update.getMessage().getChatId().toString(), message);
-		System.out.println(update.getMessage().getChatId().toString());
-	}
+		String melbetLink = update.getMessage().getText();
+
+		sendMsg(update.getMessage().getChatId().toString(), "Started");
 	
+		List<Event> events = new ArrayList<Event>();
+		
+		try {
+			events = fileworker.readFile(filePath);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		System.out.println(events);
+		System.out.println(update.getMessage().getChatId().toString());
+			
+		for(;;){
+			int currentTime = service.getCurrentTimePlus30("HHmm");
+			if(currentTime>=2331){
+				System.out.println("Exit..");
+				System.exit(1);
+			}
+			
+			for(int i=0;i<events.size();i++){
+				Event event = events.get(i);
+				System.out.println(event.getHeader());
+				Integer eventTime = service.intTime(event.getTime());
+				System.out.println(eventTime-currentTime+"Result ");
+				
+				if(eventTime==currentTime){
+					
+					String postText = service.postgenerator(event, melbetLink);
+					sendMsg("-1001274613302", postText);
+					sendMsg("420449716", event.header+"\n Через 30 матч! треба спамить\n Силка: "+event.link);
+					events.remove(i);
+				}
+				System.out.println(eventTime+ " and "+currentTime);
+				
+			}
+		System.out.println(events);
+		try {
+			Thread.sleep(60000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		}
+	}
+		
+
 
 	@Override
 	public String getBotToken() {
@@ -46,13 +89,12 @@ public class MyBot extends TelegramLongPollingBot{
 	public synchronized void sendMsg(String chatId, String s) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
-        sendMessage.setChatId("-1001274613302");
+        sendMessage.setChatId(chatId);
         sendMessage.setText(s);
-        //-1001274613302
         
         try {
             sendMessage(sendMessage);
-            setButtons(sendMessage);
+            
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

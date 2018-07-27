@@ -13,25 +13,27 @@ import java.util.StringTokenizer;
 
 public class FileWorker {
 
-	String readFile(String filename) throws UnsupportedEncodingException{
-		
-		
+	List readFile(String filename) throws UnsupportedEncodingException{
+			
 		String cvsSplitBy = ";";
+		List<Event> events = new ArrayList<Event>();
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
 			String sCurrentLine;
 
 			while ((sCurrentLine = br.readLine()) != null) {
 				String[] values = sCurrentLine.split(cvsSplitBy);
-				System.out.println(values[1]);
+				String link = values[0];
+				String header = values[1];
+				String time = values[2];
+				events.add(new Event(link,header,time));
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
-	return "";
+			
+	return events;
 	}
 	
 
