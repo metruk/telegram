@@ -29,7 +29,6 @@ public class Service {
 		String moneyEmoji = EmojiParser.parseToUnicode(":moneybag:");
 		String postText = clock+event.getTime() + " "+event.getHeader()+"\n";
 		postText = postText +fireEmoji+"*Трансляция:* "+globalSite + event.getLink()+"\n";
-		postText = postText +"\n"+moneyEmoji+"*Ставим на матчи с MELBET:* "+melbetLink;
 		
 		return postText;
 	}

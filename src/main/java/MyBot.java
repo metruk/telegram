@@ -31,6 +31,13 @@ public class MyBot extends TelegramLongPollingBot{
 				sendMsg(update.getMessage().getChatId().toString(), "Success");
 			}
 		}*/
+		
+		int currTime = service.getCurrentTimePlus30("HHmm");
+		if(currTime>=2331){
+			System.out.println("Exit..");
+			System.exit(1);
+		}
+		
 		String melbetLink = update.getMessage().getText();
 
 		sendMsg(update.getMessage().getChatId().toString(), "Started");
